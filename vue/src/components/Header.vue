@@ -1,4 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const activeIndex = ref(0)
+
+function handleSelect() {}
+</script>
 
 <template>
   <el-menu

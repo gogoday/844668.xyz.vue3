@@ -12,10 +12,11 @@ watch(originJSONString, (origin) => {
   let doc = '{}'
   try {
     doc = JSON.stringify(JSON.parse(origin), null, 2)
-  } catch (e) {
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e : new Error('未知错误')
     // console.log(e)
     if (target.value) {
-      target.value.innerText = e.message
+      target.value.innerText = msg.message
       errorClass.value = 'error'
     }
     return

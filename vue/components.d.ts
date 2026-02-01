@@ -12,14 +12,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    copy: typeof import('./src/components/Header copy.vue')['default']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElFooter: typeof import('element-plus/es')['ElFooter']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
-    ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
@@ -37,14 +35,12 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
-  const copy: typeof import('./src/components/Header copy.vue')['default']
   const ElContainer: typeof import('element-plus/es')['ElContainer']
   const ElFooter: typeof import('element-plus/es')['ElFooter']
   const ElHeader: typeof import('element-plus/es')['ElHeader']
   const ElMain: typeof import('element-plus/es')['ElMain']
   const ElMenu: typeof import('element-plus/es')['ElMenu']
   const ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
-  const ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
   const Footer: typeof import('./src/components/Footer.vue')['default']
   const Header: typeof import('./src/components/Header.vue')['default']
   const HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
