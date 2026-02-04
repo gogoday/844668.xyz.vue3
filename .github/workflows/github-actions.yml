@@ -44,18 +44,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: install pnpm
     - run: npm i -g pnpm@10
-    - name: pnpm i
     - run: pnpm i
-    - name: pnpm build
     - run: pnpm build
-    - name: tar cvf ${{ DIST_TAR_FILE }}
     - run: cd dist && tar cvf ${{ DIST_TAR_FILE }} ./* && cd ..
     - name: Publish to server
       uses: gogoday/ssh-scp-deploy@master
