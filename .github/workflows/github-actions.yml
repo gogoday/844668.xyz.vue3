@@ -14,45 +14,43 @@ on:
     branches: [ $default-branch ]
   pull_request:
     branches: [ $default-branch ]
+  jobs:
+    build:
 
+      runs-on: ubuntu-latest
 
-jobs:
-  build:
+      strategy:
+        matrix:
+          node-version: [24.x]
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [24.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm i -g pnpm@10
-    - run: pnpm i
-    - run: pnpm build
-    - run: cd dist && tar cvf ${{ env.DIST_TAR_FILE }} ./* && cd ..
-    - name: Publish to server
-      uses: gogoday/ssh-scp-deploy@master
-      with:
-        src: ./dist/${{ env.DIST_TAR_FILE }}
-        host: pig-dig.cn
-        remote: /data/
-        port: 22
-        user: root
-        key: ${{ env.PIGDIG_KEY }}
-        # 优化部署命令：先备份、清空目标目录、解压、重启并检查服务状态
-        cmd: |
-          cd /data/ && \
-          echo "=== Current directory files ===" && \
-          ls -la && \
-          # 创建目标目录（确保存在）
-          mkdir -p ${{ env.DEPLOY_DIR }} && \
-          # 解压新产物（覆盖旧文件）
-          tar xzvf ${{ env.DIST_TAR_FILE }} -C ${{ env.DEPLOY_DIR }} && \
-          echo "=== Unpack completed ===" && \
-          ls -la ${{ env.DEPLOY_DIR }}
+      steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm i -g pnpm@10
+      - run: pnpm i
+      - run: pnpm build
+      - run: cd dist && tar cvf ${{ env.DIST_TAR_FILE }} ./* && cd ..
+      - name: Publish to server
+        uses: gogoday/ssh-scp-deploy@master
+        with:
+          src: ./dist/${{ env.DIST_TAR_FILE }}
+          host: pig-dig.cn
+          remote: /data/
+          port: 22
+          user: root
+          key: ${{ env.PIGDIG_KEY }}
+          # 优化部署命令：先备份、清空目标目录、解压、重启并检查服务状态
+          cmd: |
+            cd /data/ && \
+            echo "=== Current directory files ===" && \
+            ls -la && \
+            # 创建目标目录（确保存在）
+            mkdir -p ${{ env.DEPLOY_DIR }} && \
+            # 解压新产物（覆盖旧文件）
+            tar xzvf ${{ env.DIST_TAR_FILE }} -C ${{ env.DEPLOY_DIR }} && \
+            echo "=== Unpack completed ===" && \
+            ls -la ${{ env.DEPLOY_DIR }}
