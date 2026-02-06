@@ -29,7 +29,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: npm i -g pnpm
-      - run: pnpm install --frozen-lockfiles
+      - run: pnpm install
       - run: pnpm build
       - run: cd dist && tar cvf ${{ env.DIST_TAR_FILE }} ./* && cd ..
       - name: Publish to server
