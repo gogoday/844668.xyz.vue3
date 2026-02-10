@@ -37,7 +37,7 @@
         >
           <input
             v-if="!initialBoard[rowIndex]?.[colIndex]"
-            v-model.number="board[rowIndex]?.[colIndex]"
+            :value="board[rowIndex]![colIndex]"
             @input="handleInput($event, rowIndex, colIndex)"
             @keydown="handleKeyDown($event, rowIndex, colIndex)"
             :class="{ 'selected': selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex }"
@@ -216,14 +216,13 @@ function formatTime(seconds: number) {
 // 处理输入
 function handleInput(event: Event, row: number, col: number) {
   const target = event.target as HTMLInputElement
-  let value = parseInt(target.value)
+  let value = target.value === '' ? 0 : parseInt(target.value)
   
-  if (isNaN(value) || value < 1 || value > 9) {
-    if (board.value[row]) board.value[row][col] = 0
-  } else {
-    if (board.value[row]) board.value[row][col] = value
+  if (isNaN(value) || value < 0 || value > 9) {
+    value = 0
   }
   
+  board.value[row]![col] = value
   validateCell(row, col)
   checkWinCondition()
 }
@@ -231,12 +230,12 @@ function handleInput(event: Event, row: number, col: number) {
 // 处理键盘事件
 function handleKeyDown(event: KeyboardEvent, row: number, col: number) {
   if (event.key >= '1' && event.key <= '9') {
-    if (board.value[row]) board.value[row][col] = parseInt(event.key)
+    board.value[row]![col] = parseInt(event.key)
     validateCell(row, col)
     checkWinCondition()
     event.preventDefault()
   } else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') {
-    if (board.value[row]) board.value[row][col] = 0
+    board.value[row]![col] = 0
     validateCell(row, col)
     event.preventDefault()
   }
@@ -331,7 +330,7 @@ function fillNumber(num: number | null) {
   if (selectedCell.value) {
     const { row, col } = selectedCell.value
     if (!initialBoard.value[row]?.[col]) {
-      if (board.value[row]) board.value[row][col] = num || 0
+      board.value[row]![col] = num || 0
       validateCell(row, col)
       checkWinCondition()
     }
