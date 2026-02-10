@@ -26,8 +26,8 @@
           :key="colIndex"
           class="sudoku-cell"
           :class="{
-            'editable': !initialBoard[rowIndex][colIndex],
-            'fixed': initialBoard[rowIndex][colIndex],
+            'editable': !initialBoard.value[rowIndex]?.[colIndex],
+            'fixed': initialBoard.value[rowIndex]?.[colIndex],
             'highlight': isHighlighted(rowIndex, colIndex),
             'error': errors.has(`${rowIndex}-${colIndex}`),
             'top-border': rowIndex % 3 === 0 && rowIndex !== 0,
@@ -36,14 +36,14 @@
           @click="selectCell(rowIndex, colIndex)"
         >
           <input
-            v-if="!initialBoard[rowIndex][colIndex]"
-            v-model.number="board[rowIndex][colIndex]"
+            v-if="!initialBoard.value[rowIndex]?.[colIndex]"
+            v-model.number="board.value[rowIndex]?.[colIndex]"
             @input="handleInput($event, rowIndex, colIndex)"
             @keydown="handleKeyDown($event, rowIndex, colIndex)"
             :class="{ 'selected': selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex }"
             :readonly="gameStatus === 'solved'"
           />
-          <span v-else>{{ initialBoard[rowIndex][colIndex] }}</span>
+          <span v-else>{{ initialBoard.value[rowIndex]?.[colIndex] }}</span>
         </div>
       </div>
     </div>
@@ -75,8 +75,8 @@ import { ref, onMounted } from 'vue'
 
 // 游戏状态
 const board = ref<number[][]>(Array(9).fill(null).map(() => Array(9).fill(0)))
-const initialBoard = ref<number[][]>(Array(9).fill(null).map(() => Array(9).fill(0)))
-const solution = ref<number[][]>(Array(9).fill(null).map(() => Array(9).fill(0)))
+const initialBoard = ref<number[][]>(Array(9).fill(0).map(() => Array(9).fill(0)))
+const solution = ref<number[][]>(Array(9).fill(0).map(() => Array(9).fill(0)))
 const selectedCell = ref<{row: number, col: number} | null>(null)
 const errors = ref<Set<string>>(new Set())
 const gameStatus = ref<'playing' | 'solved'>('playing')
@@ -186,7 +186,7 @@ async function generateNewGame() {
   // 更新状态
   board.value = JSON.parse(JSON.stringify(puzzle))
   initialBoard.value = JSON.parse(JSON.stringify(puzzle))
-  solution.value = completeSolution
+  solution.value = JSON.parse(JSON.stringify(completeSolution))
   selectedCell.value = null
   errors.value.clear()
   gameStatus.value = 'playing'
@@ -219,9 +219,9 @@ function handleInput(event: Event, row: number, col: number) {
   let value = parseInt(target.value)
   
   if (isNaN(value) || value < 1 || value > 9) {
-    board.value[row][col] = 0
+    if (board.value[row]) board.value[row][col] = 0
   } else {
-    board.value[row][col] = value
+    if (board.value[row]) board.value[row][col] = value
   }
   
   validateCell(row, col)
@@ -231,12 +231,12 @@ function handleInput(event: Event, row: number, col: number) {
 // 处理键盘事件
 function handleKeyDown(event: KeyboardEvent, row: number, col: number) {
   if (event.key >= '1' && event.key <= '9') {
-    board.value[row][col] = parseInt(event.key)
+    if (board.value[row]) board.value[row][col] = parseInt(event.key)
     validateCell(row, col)
     checkWinCondition()
     event.preventDefault()
   } else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') {
-    board.value[row][col] = 0
+    if (board.value[row]) board.value[row][col] = 0
     validateCell(row, col)
     event.preventDefault()
   }
@@ -248,13 +248,13 @@ function validateCell(row: number, col: number) {
   errors.value.delete(`${row}-${col}`)
   
   // 如果单元格为空，则无需验证
-  if (board.value[row][col] === 0) {
+  if (!board.value[row] || board.value[row][col] === 0) {
     return
   }
   
   // 检查行
   for (let c = 0; c < 9; c++) {
-    if (c !== col && board.value[row][c] === board.value[row][col]) {
+    if (c !== col && board.value[row]?.[c] === board.value[row]?.[col]) {
       errors.value.add(`${row}-${col}`)
       return
     }
@@ -262,7 +262,7 @@ function validateCell(row: number, col: number) {
   
   // 检查列
   for (let r = 0; r < 9; r++) {
-    if (r !== row && board.value[r][col] === board.value[row][col]) {
+    if (r !== row && board.value[r]?.[col] === board.value[row]?.[col]) {
       errors.value.add(`${row}-${col}`)
       return
     }
@@ -274,7 +274,7 @@ function validateCell(row: number, col: number) {
   
   for (let r = startRow; r < startRow + 3; r++) {
     for (let c = startCol; c < startCol + 3; c++) {
-      if ((r !== row || c !== col) && board.value[r][c] === board.value[row][col]) {
+      if ((r !== row || c !== col) && board.value[r]?.[c] === board.value[row]?.[col]) {
         errors.value.add(`${row}-${col}`)
         return
       }
@@ -288,17 +288,17 @@ function validateBoard() {
   
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
-      if (board.value[row][col] !== 0) {
+      if (board.value[row]?.[col] !== 0) {
         // 检查行
         for (let c = 0; c < 9; c++) {
-          if (c !== col && board.value[row][c] === board.value[row][col]) {
+          if (c !== col && board.value[row]?.[c] === board.value[row]?.[col]) {
             errors.value.add(`${row}-${col}`)
           }
         }
         
         // 检查列
         for (let r = 0; r < 9; r++) {
-          if (r !== row && board.value[r][col] === board.value[row][col]) {
+          if (r !== row && board.value[r]?.[col] === board.value[row]?.[col]) {
             errors.value.add(`${row}-${col}`)
           }
         }
@@ -309,7 +309,7 @@ function validateBoard() {
         
         for (let r = startRow; r < startRow + 3; r++) {
           for (let c = startCol; c < startCol + 3; c++) {
-            if ((r !== row || c !== col) && board.value[r][c] === board.value[row][col]) {
+            if ((r !== row || c !== col) && board.value[r]?.[c] === board.value[row]?.[col]) {
               errors.value.add(`${row}-${col}`)
             }
           }
@@ -321,7 +321,7 @@ function validateBoard() {
 
 // 选择单元格
 function selectCell(row: number, col: number) {
-  if (!initialBoard.value[row][col]) {
+  if (!initialBoard.value[row]?.[col]) {
     selectedCell.value = { row, col }
   }
 }
@@ -330,8 +330,8 @@ function selectCell(row: number, col: number) {
 function fillNumber(num: number | null) {
   if (selectedCell.value) {
     const { row, col } = selectedCell.value
-    if (!initialBoard.value[row][col]) {
-      board.value[row][col] = num || 0
+    if (!initialBoard.value[row]?.[col]) {
+      if (board.value[row]) board.value[row][col] = num || 0
       validateCell(row, col)
       checkWinCondition()
     }
@@ -343,7 +343,7 @@ function checkWinCondition() {
   // 检查是否有空格
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
-      if (board.value[row][col] === 0) {
+      if (board.value[row]?.[col] === 0) {
         return // 还有空格，游戏未完成
       }
     }
@@ -369,7 +369,7 @@ function checkSolution() {
     let isComplete = true
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        if (board.value[row][col] === 0) {
+        if (board.value[row]?.[col] === 0) {
           isComplete = false
           break
         }
