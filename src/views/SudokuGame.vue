@@ -26,8 +26,8 @@
           :key="colIndex"
           class="sudoku-cell"
           :class="{
-            'editable': !initialBoard.value[rowIndex]?.[colIndex],
-            'fixed': initialBoard.value[rowIndex]?.[colIndex],
+            'editable': !initialBoard[rowIndex]?.[colIndex],
+            'fixed': initialBoard[rowIndex]?.[colIndex],
             'highlight': isHighlighted(rowIndex, colIndex),
             'error': errors.has(`${rowIndex}-${colIndex}`),
             'top-border': rowIndex % 3 === 0 && rowIndex !== 0,
@@ -36,14 +36,14 @@
           @click="selectCell(rowIndex, colIndex)"
         >
           <input
-            v-if="!initialBoard.value[rowIndex]?.[colIndex]"
-            v-model.number="board.value[rowIndex]?.[colIndex]"
+            v-if="!initialBoard[rowIndex]?.[colIndex]"
+            v-model.number="board[rowIndex]?.[colIndex]"
             @input="handleInput($event, rowIndex, colIndex)"
             @keydown="handleKeyDown($event, rowIndex, colIndex)"
             :class="{ 'selected': selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex }"
             :readonly="gameStatus === 'solved'"
           />
-          <span v-else>{{ initialBoard.value[rowIndex]?.[colIndex] }}</span>
+          <span v-else>{{ initialBoard[rowIndex]?.[colIndex] }}</span>
         </div>
       </div>
     </div>
