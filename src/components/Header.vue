@@ -13,7 +13,12 @@ function handleSelect() {}
     mode="horizontal"
     @select="handleSelect"
   >
-    <el-menu-item index="1">JSON 工具</el-menu-item>
+    <el-menu-item index="1">
+      <RouterLink to="/">JSON 工具</RouterLink>
+    </el-menu-item>
+    <el-menu-item index="2">
+      <RouterLink to="/sudo">数独</RouterLink>
+    </el-menu-item>
     <!-- <el-sub-menu index="2">
       <template #title>Workspace</template>
       <el-menu-item index="2-1">item one</el-menu-item>
